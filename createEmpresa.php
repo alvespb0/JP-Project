@@ -7,9 +7,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $links = $_POST['links_empresa'];
     $endereco = $_POST['endereco_empresa'];
     $observacao_importacao = isset($_POST['OBS_importacao']) ? $conn->real_escape_string($_POST['OBS_importacao']) : '';
+    $observacao_recebimento = isset($_POST['OBS_recebimentos']) ? $conn->real_escape_string($_POST['OBS_recebimentos']) : '';
+    $observacao_link = isset($_POST['OBS_links']) ? $conn -> real_escape_string($_POST['OBS_links']) : '';
+    $observacao_particularidades = isset($_POST['OBS_particularidades']) ? $conn -> real_escape_string($_POST['OBS_particularidades']) : '';
+
+    $forma_recebimento = $_POST['forma_recebimento'];
+
+    echo $observacao_recebimento;
 
 
-    $sql = "INSERT INTO empresa (links_empresa, nome_empresa, cnpj_empresa, particularidades_empresa, endereco_empresa) values ('$links', '$nome', '$cnpj', '$particularidades', '$endereco')";
+    $sql = "INSERT INTO empresa (links_empresa, nome_empresa, cnpj_empresa, particularidades_empresa, endereco_empresa, obs_link, obs_particularidades) 
+    values ('$links', '$nome', '$cnpj', '$particularidades', '$endereco', '$observacao_link', '$observacao_particularidades')";
     
 
 
@@ -37,6 +45,67 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
         }
+        
+// Inserir forma de recebimento
+
+        if (!empty($_POST['forma_recebimento'])) {
+            $forma_recebimento = $conn->real_escape_string($_POST['forma_recebimento']);
+            $sql_recebimento = "INSERT INTO forma_recebimento (tipo_formaRecebimento) VALUES ('$forma_recebimento')";
+        
+            if ($conn->query($sql_recebimento) === TRUE) {
+                $recebimento_id = $conn->insert_id;
+
+                /* ATÉ AQUI FOI */
+            
+                // Verificar subformas
+                if(!empty($_POST['subformas_recebimento'])){ //verifica se a array das checkbox de importacao está vazia
+                    foreach($_POST['subformas_recebimento'] as $subdescricao){
+                        $subdescricao = $conn->real_escape_string($subdescricao);
+                        $sql_subforma = "INSERT INTO subforma_recebimento (ID_formaDeRecebimento, nome_subforma) 
+                                         VALUES ($recebimento_id, '$subdescricao')";
+        
+                        if ($conn->query($sql_subforma) === TRUE) {
+                            $subforma_id = $conn->insert_id;
+                        
+                            // Inserir relacionamento com subforma válida
+                            $sql_empresa_recebimento = "INSERT INTO empresa_recebimento (empresa_id, forma_recebimento_id, subforma_recebimento_id, obs_recebimento) 
+                                                        VALUES ($empresa_id, $recebimento_id, $subforma_id, '$observacao_recebimento')";
+        
+                            if ($conn->query($sql_empresa_recebimento) !== TRUE) {
+                                echo "Erro ao inserir na tabela de relacionamento de recebimento: " . $conn->error;
+                            }
+                        } else {
+                            echo "Erro ao inserir subforma de recebimento: " . $conn->error;
+                        }
+                    }
+                } else {
+                    // Caso não haja subformas, criar uma subforma padrão ou ajustar para um valor padrão
+                    // Exemplo: "Nenhuma" ou "Padrão", conforme necessário.
+                    $sql_subforma_padrao = "INSERT INTO subforma_recebimento (ID_formaDeRecebimento, nome_subforma) 
+                                            VALUES ($recebimento_id, 'Padrão')";
+        
+                    if ($conn->query($sql_subforma_padrao) === TRUE) {
+                        $subforma_id = $conn->insert_id;
+                    
+                        // Inserir com subforma padrão
+                        $sql_empresa_recebimento = "INSERT INTO empresa_recebimento (empresa_id, forma_recebimento_id, subforma_recebimento_id, obs_recebimento) 
+                                                    VALUES ($empresa_id, $recebimento_id, $subforma_id, '$observacao_recebimento')";
+        
+                        if ($conn->query($sql_empresa_recebimento) !== TRUE) {
+                            echo "Erro ao inserir na tabela de relacionamento de recebimento: " . $conn->error;
+                        }
+                    } else {
+                        echo "Erro ao inserir subforma padrão: " . $conn->error;
+                    }
+                }
+    } else {
+        echo "Erro ao inserir forma de recebimento: " . $conn->error;
+    }
+}
+
+
+                
+                
     } else {
         echo "Erro: " . $sql . "<br>" . $conn->error;
     }
