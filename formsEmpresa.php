@@ -40,59 +40,63 @@
         <div class="row">
             <div class="col-md-4">
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="importacao[]" value="1" id="integracao1">
+                    <input class="form-check-input" type="checkbox" name="importacao[]" value="Entrada por SPED" id="importacao1">
                     <label class="form-check-label" for="integracao1">Entrada por SPED</label>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="importacao[]" value="2" id="integracao2">
+                    <input class="form-check-input" type="checkbox" name="importacao[]" value="Saída por SPED" id="importacao2">
                     <label class="form-check-label" for="integracao2">Saída por SPED</label>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="importacao[]" value="3" id="integracao3">
+                    <input class="form-check-input" type="checkbox" name="importacao[]" value="Entradas por XML" id="importacao3">
                     <label class="form-check-label" for="integracao3">Entradas por XML</label>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="importacao[]" value="3" id="integracao3">
+                    <input class="form-check-input" type="checkbox" name="importacao[]" value="Saida por XML" id="importacao4">
                     <label class="form-check-label" for="integracao3">Saida por XML</label>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="importacao[]" value="3" id="integracao3">
+                    <input class="form-check-input" type="checkbox" name="importacao[]" value="Entradas pelo SAT" id="importacao5">
                     <label class="form-check-label" for="integracao3">Entradas pelo SAT</label>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="importacao[]" value="3" id="integracao3">
+                    <input class="form-check-input" type="checkbox" name="importacao[]" value="Saida pelo Sieg" id="importacao6">
                     <label class="form-check-label" for="integracao3">Saida pelo Sieg</label>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="importacaoimportacao[]" value="3" id="integracao3">
+                    <input class="form-check-input" type="checkbox" name="importacao[]" value="NFCe por Sped" id="importacao7">
                     <label class="form-check-label" for="integracao3">NFCe por Sped</label>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="importacaoimportacao[]" value="3" id="integracao3">
+                    <input class="form-check-input" type="checkbox" name="importacao[]" value="NFCe por xml - Sieg" id="importacao8">
                     <label class="form-check-label" for="integracao3">NFCe por xml - Sieg</label>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="importacao[]" value="3" id="integracao3">
+                    <input class="form-check-input" type="checkbox" name="importacao[]" value="NFCe por XML - Copiado do Cliente" id="importacao9">
                     <label class="form-check-label" for="integracao3">NFCe por XML - Copiado do Cliente</label>
                 </div>
             </div>
-        </div>
+        </div> <br>
+            <div class="mb-3">
+                <label for="obs importacao" class="form-label">Observações sobre as importações</label>
+                <input type="text" id="OBS_importacao" name="OBS_importacao" class="form-control" placeholder="importacao">
+            </div>
         
 
         <h3 class="mt-4">Formas de Recebimento</h3>
