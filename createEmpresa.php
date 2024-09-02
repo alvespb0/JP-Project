@@ -1,5 +1,7 @@
 <?php
 include 'db.php';
+include 'index.php';
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nome = $_POST['nome_empresa'];
     $cnpj = $_POST['cnpj_empresa'];
@@ -12,8 +14,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $observacao_particularidades = isset($_POST['OBS_particularidades']) ? $conn -> real_escape_string($_POST['OBS_particularidades']) : '';
 
     $forma_recebimento = $_POST['forma_recebimento'];
-
-    echo $observacao_recebimento;
 
 
     $sql = "INSERT INTO empresa (links_empresa, nome_empresa, cnpj_empresa, particularidades_empresa, endereco_empresa, obs_link, obs_particularidades) 
