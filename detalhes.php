@@ -10,13 +10,13 @@ $sql_empresa = "SELECT * FROM empresa WHERE ID_empresa = $empresa_id";
 $result_empresa = $conn->query($sql_empresa);
 $empresa = $result_empresa->fetch_assoc();
 
-// Verifica se a empresa foi encontrada
+// Verifica se a emresa foi encontrada
 if (!$empresa) {
     echo "Empresa não encontrada.";
     exit();
 }
 
-// Consulta para obter formas de importação
+// Consulta para obter formas de importação || essa parte do join foi utilizado o chat, não lembrava como fazia
 $sql_importacao = "SELECT f.tipo_formasImportacao, e.obs_importacao 
                     FROM formas_importacao f
                     JOIN empresa_importacao e ON f.ID_formasImportacao = e.ID_formaDeImportacao
@@ -24,12 +24,12 @@ $sql_importacao = "SELECT f.tipo_formasImportacao, e.obs_importacao
 
 $result_importacao = $conn->query($sql_importacao);
 
-// Obter observação única
+// apenas para agrupar a obs e não ficar duplicando
 $obs_importacao = null;
 $importacao_data = [];
 while ($row = $result_importacao->fetch_assoc()) {
     $importacao_data[] = $row['tipo_formasImportacao'];
-    $obs_importacao = $row['obs_importacao']; // Obter a observação, assumindo que é a mesma para todas as formas de importação
+    $obs_importacao = $row['obs_importacao']; 
 }
 
 
@@ -43,15 +43,15 @@ $sql_recebimento = "SELECT f.Tipo_formaRecebimento, sr.nome_subforma, e.obs_rece
                     LEFT JOIN subforma_recebimento sr ON e.subforma_recebimento_id = sr.ID_subforma 
                     WHERE e.empresa_id = $empresa_id LIMIT 0, 25;
 ";
-// Execute a consulta
+
 $result_recebimento = $conn->query($sql_recebimento);
 
-// Obter observação única
+// apenas para agrupar a obs e não ficar duplicando
 $obs_recebimento = null;
 $recebimento_data = [];
 while ($row = $result_recebimento->fetch_assoc()) {
     $recebimento_data[] = $row;
-    $obs_recebimento = $row['obs_recebimento']; // Obter a observação, assumindo que é a mesma para todas as formas de recebimento
+    $obs_recebimento = $row['obs_recebimento']; 
 }
 
 // Consulta para obter particularidades e observações
