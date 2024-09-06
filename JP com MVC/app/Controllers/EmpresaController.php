@@ -23,22 +23,28 @@ class EmpresaController{
                 $html .= "<tr>";
                 $html .= "<td><a href='details.php?id=" . urlencode($row['ID_empresa']) . "'>" . htmlspecialchars($row['nome_empresa']) . "</a></td>";
                 $html .= "<td>" . htmlspecialchars($row['cnpj_empresa']) . "</td>";
+                $html .= "<td>
+                <div class='row'>
+                    <div class='col-md-6'>
+                        <form method='POST' action='' class='m-0'>
+                            <input type='hidden' name='delete_id' value='" . htmlspecialchars($row['ID_empresa']) . "'>
+                                <button type='submit' name='delete' class='btn btn-danger btn-sm w-100' style='background-color: #a40c1c; color: white; onclick='return confirm(\"Tem certeza que deseja excluir esta empresa?\");'>
+                                Excluir
+                            </button>
+                        </form>
+                    </div>
+                    <div class='col-md-6'>
+                        <a href='update.php?id=" . urlencode($row['ID_empresa']) . "' class='btn btn-primary btn-sm w-100' style='background-color: #043464; color: white;text-decoration: none;'>
+                            Editar
+                        </a>
+                    </div>
+                </div>
+              </td>";
                 $html .= "</tr>";
             }
         }
 
         return $html; 
-    }
-
-    //algo a trabalhar definitivamente
-    public function exibirDetalhes($id) {
-        $empresa = $this->empresaModel->getEmpresaByID($id);
-    }
-
-    public function criarEmpresa() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->empresaModel->createEmpresa($_POST);
-        }
     }
 
     public function searchEmpresa($search = '') {
@@ -57,13 +63,40 @@ class EmpresaController{
         $html = '';
         foreach ($empresasData as $empresa) {
             $html .= "<tr>
-                        <td>{$empresa['nome']}</td>
+                        <td><a href='details.php?id=" . urlencode($empresa['id']) . "'>" . htmlspecialchars($empresa['nome']) . "</a></td>
                         <td>{$empresa['cnpj']}</td>
-                        <td><a href='detalhes.php?id={$empresa['id']}'>Ver Detalhes</a></td>
+                        <td>
+                            <div class='row'>
+                                <div class='col-md-6'>
+                                    <form method='POST' action='' class='m-0'>
+                                        <input type='hidden' name='delete_id' value='" . htmlspecialchars($empresa['id']) . "'>
+                                        <button type='submit' name='delete' class='btn btn-danger btn-sm w-100' style='background-color: #a40c1c; color: white; onclick='return confirm(\"Tem certeza que deseja excluir esta empresa?\");'>
+                                            Excluir
+                                        </button>
+                                    </form>
+                                </div>
+                                <div class='col-md-6'>
+                                    <a href='update.php?id=" . urlencode($empresa['id']) . "' class='btn btn-primary btn-sm w-100' style='background-color: #043464; color: white;text-decoration: none;'>
+                                        Editar
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
                       </tr>";
         }
         return $html;
     }
+    //algo a trabalhar definitivamente
+    public function exibirDetalhes($id) {
+        $empresa = $this->empresaModel->getEmpresaByID($id);
+    }
+
+    public function criarEmpresa() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->empresaModel->createEmpresa($_POST);
+        }
+    }
+
 
     public function searchORList($searchTerm) {
         if ($searchTerm) {
@@ -128,7 +161,6 @@ class EmpresaController{
         }
     }
     
-
     public function DetailsLinks(){
         $links = $this->empresaModel->getLinksBYUrl();
 
