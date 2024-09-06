@@ -23,6 +23,38 @@ class empresa{
         $result = $this->conn->query($sql);
         return $result->fetch_all(MYSQLI_ASSOC);
     }
+    
+    public function getEmpresaRecebimentoById($id){
+        $sql = "SELECT * from empresa_recebimento where empresa_id = $id";
+        $result = $this->conn->query($sql);
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function getFormaRecebimentoByID($id){
+        $sql = "SELECT * from forma_recebimento where ID_formaRecebimento = $id";
+        $result = $this->conn->query($sql);
+        if ($result && $result->num_rows > 0) {
+            $data = $result->fetch_assoc();
+            return $data['Tipo_formaRecebimento'];
+        } else {
+            return null;
+        }
+    }
+
+    public function getSubFormaRecebimentoById($id){
+        $sql = "SELECT * from subforma_recebimento where ID_formaDeRecebimento = $id";
+        $result = $this->conn->query($sql);
+            // Verifica se a consulta retornou algum resultado
+        if ($result && $result->num_rows > 0) {
+            $subFormas = [];
+            while ($row = $result->fetch_assoc()) {
+                $subFormas[] = $row['nome_subforma'];
+            }
+            return $subFormas;
+        } else {
+            return [];
+        }
+    }
 
     public function getEmpresaBySearch($search = '') {
         // Protege contra SQL Injection
