@@ -23,6 +23,23 @@ class empresa{
         $result = $this->conn->query($sql);
         return $result->fetch_all(MYSQLI_ASSOC);
     }
+
+    public function getEmpresaImportacaoById($id){
+        $sql = "SELECT * from empresa_importacao where ID_daEmpresa = $id";
+        $result = $this->conn->query($sql);
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+    
+    public function getFormaImportacaoById($id){
+        $sql = "SELECT tipo_formasImportacao FROM formas_importacao WHERE ID_formasImportacao = $id";
+        $result = $this->conn->query($sql);
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            return $row['tipo_formasImportacao'];
+        } else {
+            return null;
+        }
+    }
     
     public function getEmpresaRecebimentoById($id){
         $sql = "SELECT * from empresa_recebimento where empresa_id = $id";
@@ -158,6 +175,30 @@ class empresa{
             echo "Erro: " . $sql . "<br>" . $this->conn->error;
         }
     }
+
+    public function UpdateEmpresaById($id){
+        $nome = $_POST['nome_empresa'];
+        $cnpj = $_POST['cnpj_empresa'];
+        $particularidades = $_POST['particularidades'];
+        $links = $_POST['links_empresa'];
+        $endereco = $_POST['endereco_empresa'];
+        $observacao_importacao = isset($_POST['OBS_importacao']) ? $this->conn->real_escape_string($_POST['OBS_importacao']) : '';
+        $observacao_recebimento = isset($_POST['OBS_recebimentos']) ? $this->conn->real_escape_string($_POST['OBS_recebimentos']) : '';
+        $observacao_link = isset($_POST['OBS_links']) ? $this->conn->real_escape_string($_POST['OBS_links']) : '';
+        $observacao_particularidades = isset($_POST['OBS_particularidades']) ? $this->conn->real_escape_string($_POST['OBS_particularidades']) : '';
+
+        $sql = "UPDATE empresa 
+        SET links_empresa = '$links', 
+            nome_empresa = '$nome', 
+            cnpj_empresa = '$cnpj', 
+            particularidades_empresa = '$particularidades', 
+            endereco_empresa = '$endereco', 
+            obs_link = '$observacao_link', 
+            obs_particularidades = '$observacao_particularidades' 
+        WHERE id = $empresaId";
+        $result = $this->conn->query($sql);
+    }
+    
     public function getEmpresasTableRows() {
         $sql = "SELECT * FROM empresa";
         $result = $this->conn->query($sql);

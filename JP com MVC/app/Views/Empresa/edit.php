@@ -11,7 +11,7 @@ $empresa = $empresaController->exibirDetalhes($empresaId);
 foreach ($empresa as $empresa) {
 }
 
-
+print_r ($empresaController->retornaImportacoes($empresaId));
 
 
 // Verifica se o formulário foi submetido para atualizar os dados
@@ -75,7 +75,7 @@ foreach ($empresa as $empresa) {
 </head>
 <body>
     <div class="container">
-        <h1>Detalhes da Empresa</h1>
+        <h1>Editar empresa</h1>
         <form action="" method="post">
             <div class="mb-3">
                 <label for="nome" class="form-label">Nome da Empresa</label>
@@ -105,12 +105,12 @@ foreach ($empresa as $empresa) {
                 <label for="OBS_particularidades" class="form-label">Observações sobre Particularidades</label>
                 <input type="text" id="OBS_particularidades" name="OBS_particularidades" class="form-control" value="<?php echo htmlspecialchars($empresa['obs_particularidades']); ?>">
             </div>
-
-            <!-- Preencha os checkboxes com base nos dados existentes -->
-            <!-- Preencha o campo select com base nos dados existentes -->
+            <h3>Formas de importacao</h3>
+            <?php echo $empresaController->montaHtmlFormasImportacao($empresaId);?>
             <h3 class="mt-4">Formas de Recebimento</h3>
             <label class="form-label">Selecione as Formas de Recebimento:</label>
-            <?php echo $empresaController->montaHTMLRecebimentos($empresaId)?>
+            <?php echo $empresaController->montaHTMLRecebimentos($empresaId);?>
+            <button type="submit" class="btn btn-primary">Editar</button>
         </form>
     </div>
 

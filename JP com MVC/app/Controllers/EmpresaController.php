@@ -94,7 +94,84 @@ class EmpresaController{
         $empresa = $this->empresaModel->getEmpresaByID($id);
         return $empresa;
     }
+    //prepara dados de importacoes
+    public function retornaImportacoes($id){
+    $empresa_importacao = $this->empresaModel->getEmpresaImportacaoById($id);
+    $formasImportacao = [];
 
+    if ($empresa_importacao) {
+        foreach ($empresa_importacao as $empresa_I) {
+            $data = $empresa_I['ID_formaDeImportacao'];
+
+            $fImportacao = $this->empresaModel->getFormaImportacaoById($data);
+            // Adiciona a forma de importação ao array se não for null
+            if ($fImportacao !== null && !in_array($fImportacao, $formasImportacao)) {
+                $formasImportacao[] = $fImportacao;
+            }
+        }
+    }
+    return $formasImportacao;
+    }
+
+    public function retornaObsFormasImportacao($id){
+        $empresa_importacao = $this->empresaModel->getEmpresaImportacaoByiD($id);
+        foreach ($empresa_importacao as $empresa_I){
+            $OBS_importacao = $empresa_I['obs_importacao'];
+        }
+        return $OBS_importacao;
+    }
+    
+    public function montaHtmlFormasImportacao($id) {
+        // Obtém as formas de importação
+        $formasImportacao = $this->retornaImportacoes($id);
+    
+        // Certifique-se de que $formasImportacao é um array
+        if (!is_array($formasImportacao)) {
+            $formasImportacao = []; // Se não for array, inicialize como array vazio
+        }
+    
+        // Obtém as observações
+        $obsImportacao = $this->retornaObsFormasImportacao($id);
+    
+        // Definindo as formas de importação disponíveis
+        $importacoesDisponiveis = [
+            'Entrada por SPED',
+            'Saída por SPED',
+            'Entradas por XML',
+            'Saída por XML',
+            'Entradas pelo SAT',
+            'Saída pelo Sieg',
+            'NFCe por Sped',
+            'NFCe por XML - Sieg',
+            'NFCe por XML - Copiado do Cliente'
+        ];
+    
+        // Gerando o HTML para os checkboxes
+        $checkboxesHtml = '';
+        foreach ($importacoesDisponiveis as $index => $importacao) {
+            $checked = in_array($importacao, $formasImportacao) ? 'checked' : '';
+            $checkboxesHtml .= '<div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="importacao[]" value="' . htmlspecialchars($importacao) . '" id="importacao' . ($index + 1) . '" ' . $checked . '>
+                                        <label class="form-check-label" for="importacao' . ($index + 1) . '">' . htmlspecialchars($importacao) . '</label>
+                                    </div>
+                                </div>';
+        }
+    
+        // Gerando o HTML completo
+        $html = '
+            <label class="form-label">Selecione as Formas de Importação:</label>
+            <div class="row mb-3">
+                ' . $checkboxesHtml . '
+            </div>
+            <div class="mb-3">
+                <label for="OBS_importacao" class="form-label">Observações sobre as Importações</label>
+                <input type="text" id="OBS_importacao" name="OBS_importacao" class="form-control" placeholder="Observações" value="' . htmlspecialchars($obsImportacao) . '">
+            </div>';
+    
+        return $html;
+    }
+        
     //Prepara dados para formas e subformas:
     public function retornaFormasdeRecebimento($id){
         $empresa_recebimento = $this->empresaModel->getEmpresaRecebimentoById($id);
@@ -157,7 +234,9 @@ class EmpresaController{
         $html .= '</form>';
         return $html;
     }
+    //fim da parte de edit formas e subformas ^;
 
+    //Cria a empresa
     public function criarEmpresa() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->empresaModel->createEmpresa($_POST);
@@ -196,7 +275,6 @@ class EmpresaController{
                 $obs_importacao = $row['obs_importacao']; // Obter a observação, assumindo que é a mesma para todas as formas de importação
             }
     
-            // Gera a tabela HTML
             echo "<table class='table table-bordered'>";
             echo "<thead>";
             echo "<tr>";
