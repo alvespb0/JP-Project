@@ -122,18 +122,14 @@ class EmpresaController{
     }
     
     public function montaHtmlFormasImportacao($id) {
-        // Obtém as formas de importação
         $formasImportacao = $this->retornaImportacoes($id);
     
-        // Certifique-se de que $formasImportacao é um array
         if (!is_array($formasImportacao)) {
             $formasImportacao = []; // Se não for array, inicialize como array vazio
         }
     
-        // Obtém as observações
         $obsImportacao = $this->retornaObsFormasImportacao($id);
     
-        // Definindo as formas de importação disponíveis
         $importacoesDisponiveis = [
             'Entrada por SPED',
             'Saída por SPED',
@@ -146,7 +142,6 @@ class EmpresaController{
             'NFCe por XML - Copiado do Cliente'
         ];
     
-        // Gerando o HTML para os checkboxes
         $checkboxesHtml = '';
         foreach ($importacoesDisponiveis as $index => $importacao) {
             $checked = in_array($importacao, $formasImportacao) ? 'checked' : '';

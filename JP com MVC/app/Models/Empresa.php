@@ -197,6 +197,8 @@ class empresa{
             obs_particularidades = '$observacao_particularidades' 
         WHERE id = $empresaId";
         $result = $this->conn->query($sql);
+
+        
     }
     
     public function getEmpresasTableRows() {
