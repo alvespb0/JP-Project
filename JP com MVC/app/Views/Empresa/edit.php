@@ -1,25 +1,23 @@
 <?php
 include_once '../layouts/navbar.php';
 require_once '../../Controllers/EmpresaController.php';
-
 use App\Controllers\EmpresaController;
 
 $empresaController = new EmpresaController();
-$empresaId = isset($_POST['ID_empresa']) ? intval($_POST['ID_empresa']) : 0;
+$empresaId = isset($_GET['ID_empresa']) ? intval($_GET['ID_empresa']) : 0;
 
 $empresa = $empresaController->exibirDetalhes($empresaId);
+
 foreach ($empresa as $empresa) {
 }
 
-print_r ($empresaController->retornaImportacoes($empresaId));
-
-
-// Verifica se o formulário foi submetido para atualizar os dados
-/* if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Atualiza a empresa com os novos dados do formulário
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
+    // Chama a função para atualizar a empresa
     $empresaController->atualizarEmpresa($empresaId);
+    // Redirecionar após a atualização
+/*     header("Location: edit.php?ID_empresa=$empresaId");
+    exit; */
 }
- */
 ?>
 
 <!DOCTYPE html>
@@ -76,7 +74,11 @@ print_r ($empresaController->retornaImportacoes($empresaId));
 <body>
     <div class="container">
         <h1>Editar empresa</h1>
-        <form action="" method="post">
+
+        <form action="" method="POST">
+        <input type="hidden" name="edit" value="1">
+        <input type="hidden" name="ID_empresa" value="<?php echo $empresaId; ?>">
+
             <div class="mb-3">
                 <label for="nome" class="form-label">Nome da Empresa</label>
                 <input type="text" id="nome" name="nome_empresa" class="form-control" value="<?php echo htmlspecialchars($empresa['nome_empresa']); ?>" required>
@@ -110,7 +112,8 @@ print_r ($empresaController->retornaImportacoes($empresaId));
             <h3 class="mt-4">Formas de Recebimento</h3>
             <label class="form-label">Selecione as Formas de Recebimento:</label>
             <?php echo $empresaController->montaHTMLRecebimentos($empresaId);?>
-            <button type="submit" class="btn btn-primary">Editar</button>
+            <button type="submit" name="submit" class="btn btn-primary">Editar</button>
+
         </form>
     </div>
 

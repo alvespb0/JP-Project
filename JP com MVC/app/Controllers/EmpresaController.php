@@ -34,7 +34,7 @@ class EmpresaController{
                         </form>
                     </div>
                     <div class='col-md-6'>
-                        <form method='POST' action='edit.php' class='m-0'>
+                        <form method='GET' action='edit.php' class='m-0'>
                             <input type='hidden' name='ID_empresa' value='" . htmlspecialchars($row['ID_empresa']) . "'>
                                 <button type='submit' name='delete' class='btn btn-danger btn-sm w-100' style='background-color: #043464; color: white;);'>
                                 Editar
@@ -199,13 +199,12 @@ class EmpresaController{
         return $OBS_recebimento;
     }
 
-    public function montaHTMLRecebimentos($id){
+    public function montaHTMLRecebimentos($id) {
         $formaRecebimento = $this->retornaFormasdeRecebimento($id);
         $subFormasRecebimento = $this->retornaSubformasdeRecebimento($id);
         $obsRecebimento = $this->retornaObsFormasRecebimento($id);
     
-        $html = '<form>';
-        $html .= '<label class="form-label">Selecione as Formas de Recebimento:</label>';
+        $html = '<label class="form-label">Selecione as Formas de Recebimento:</label>';
         $html .= '<select class="form-select mb-3" name="forma_recebimento">';
         $formas = ['digital' => 'Digital', 'fisico' => 'Físico', 'digital e fisico' => 'Digital e Físico'];
         foreach ($formas as $value => $label) {
@@ -226,9 +225,10 @@ class EmpresaController{
                     <label for="OBS_recebimentos" class="form-label">Observações sobre os Recebimentos</label>
                     <input type="text" id="OBS_recebimentos" name="OBS_recebimentos" class="form-control" placeholder="Observações" value="' . htmlspecialchars($obsRecebimento) . '">
                   </div>';
-        $html .= '</form>';
+        
         return $html;
     }
+    
     //fim da parte de edit formas e subformas ^;
 
     //Cria a empresa
@@ -377,6 +377,10 @@ class EmpresaController{
             echo "</tbody>";
             echo "</table>";
         }
+    }
+
+    public function atualizarEmpresa($empresaId){
+            $this->empresaModel-> UpdateEmpresaById($empresaId);
     }
 
 

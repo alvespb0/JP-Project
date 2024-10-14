@@ -176,29 +176,208 @@ class empresa{
         }
     }
 
-    public function UpdateEmpresaById($id){
-        $nome = $_POST['nome_empresa'];
-        $cnpj = $_POST['cnpj_empresa'];
-        $particularidades = $_POST['particularidades'];
-        $links = $_POST['links_empresa'];
-        $endereco = $_POST['endereco_empresa'];
-        $observacao_importacao = isset($_POST['OBS_importacao']) ? $this->conn->real_escape_string($_POST['OBS_importacao']) : '';
-        $observacao_recebimento = isset($_POST['OBS_recebimentos']) ? $this->conn->real_escape_string($_POST['OBS_recebimentos']) : '';
-        $observacao_link = isset($_POST['OBS_links']) ? $this->conn->real_escape_string($_POST['OBS_links']) : '';
-        $observacao_particularidades = isset($_POST['OBS_particularidades']) ? $this->conn->real_escape_string($_POST['OBS_particularidades']) : '';
-
+/*     public function UpdateEmpresaById($empresaId){
+        echo 'entrou na função de update';
+        $nome = $_POST['nome_empresa'] ?? '';
+        $cnpj = $_POST['cnpj_empresa'] ?? '';
+        $particularidades = $_POST['particularidades'] ?? '';
+        $links = $_POST['links_empresa'] ?? '';
+        $endereco = $_POST['endereco_empresa'] ?? '';
+        $observacao_importacao = $this->conn->real_escape_string($_POST['OBS_importacao'] ?? '');
+        $observacao_recebimento = $this->conn->real_escape_string($_POST['OBS_recebimentos'] ?? '');
+        $observacao_link = $this->conn->real_escape_string($_POST['OBS_links'] ?? '');
+        $observacao_particularidades = $this->conn->real_escape_string($_POST['OBS_particularidades'] ?? '');
+    
         $sql = "UPDATE empresa 
-        SET links_empresa = '$links', 
-            nome_empresa = '$nome', 
-            cnpj_empresa = '$cnpj', 
-            particularidades_empresa = '$particularidades', 
-            endereco_empresa = '$endereco', 
-            obs_link = '$observacao_link', 
-            obs_particularidades = '$observacao_particularidades' 
-        WHERE id = $empresaId";
-        $result = $this->conn->query($sql);
+                SET links_empresa = '$links', 
+                    nome_empresa = '$nome', 
+                    cnpj_empresa = '$cnpj', 
+                    particularidades_empresa = '$particularidades', 
+                    endereco_empresa = '$endereco', 
+                    obs_link = '$observacao_link', 
+                    obs_particularidades = '$observacao_particularidades' 
+                WHERE id = $empresaId";
+    
+        $this->conn->query($sql);
 
+        //update formas importacao
+
+        $resultImportacao = true;
+        if (isset($_POST['importacao'])) {
+            $formasImportacaoSelecionadas = $_POST['importacao'];
+    
+            // Limpa as importações existentes da empresa
+            $this->conn->query("DELETE FROM empresa_importacao WHERE ID_daEmpresa = $empresaId");
+    
+            // Insere as novas importações
+            foreach ($formasImportacaoSelecionadas as $forma) {
+                // Obtém o ID da forma de importação
+                $formaEscapada = $this->conn->real_escape_string($forma);
+                $stmtForma = $this->conn->query("SELECT ID_formasImportacao FROM formas_importacao WHERE tipo = '$formaEscapada'");
+                mysqli_error($this->conn);
+                $resultado = $stmtForma->fetch_assoc();
+    
+                if ($resultado) {
+                    $idFormaImportacao = $resultado['ID_formasImportacao'];
+                // Cria a consulta de inserção
+                    $sqlImportacao = "INSERT INTO empresa_importacao (ID_daEmpresa, ID_formaDeImportacao, OBS_importacao) 
+                                  VALUES ($empresaId, $idFormaImportacao, '$observacao_importacao')";
+                // Executa a consulta
+                    $resultImportacao = $this->conn->query($sqlImportacao);                
+                }
+            }
+        }
+        if (isset($_POST['recebimento'])) {
+            $formasRecebimentoSelecionadas = $_POST['recebimento'];
+    
+            // Limpa as formas de recebimento existentes da empresa
+            $this->conn->query("DELETE FROM empresa_recebimento WHERE empresa_id = $empresaId");
+    
+            // Insere as novas formas de recebimento
+            foreach ($formasRecebimentoSelecionadas as $formaRecebimento) {
+                $formaRecebimentoEscapada = $this->conn->real_escape_string($formaRecebimento);
+                $stmtFormaRecebimento = $this->conn->query("SELECT ID_formaRecebimento FROM forma_recebimento WHERE Tipo_formaRecebimento = '$formaRecebimentoEscapada'");
+                $resultadoRecebimento = $stmtFormaRecebimento->fetch_assoc();
+    
+                if ($resultadoRecebimento) {
+                    $idFormaRecebimento = $resultadoRecebimento['ID_formaRecebimento'];
+    
+                    // Insere também as subformas de recebimento, se houver
+                    if (isset($_POST['subformas_recebimento'][$formaRecebimento])) {
+                        $subformasRecebimentoSelecionadas = $_POST['subformas_recebimento'][$formaRecebimento];
+    
+                        foreach ($subformasRecebimentoSelecionadas as $subforma) {
+                            $subformaEscapada = $this->conn->real_escape_string($subforma);
+                            $stmtSubforma = $this->conn->query("SELECT ID_subForma FROM subforma_recebimento WHERE nome_subforma = '$subformaEscapada'");
+                            $resultadoSubforma = $stmtSubforma->fetch_assoc();
+    
+                            if ($resultadoSubforma) {
+                                $idSubforma = $resultadoSubforma['ID_subForma'];
+    
+                                // Cria a consulta de inserção
+                                $sqlRecebimento = "INSERT INTO empresa_recebimento (empresa_id, forma_recebimento_id, obs_recebimento, subforma_recebimento_id) 
+                                                   VALUES ($empresaId, $idFormaRecebimento, '$observacao_recebimento', $idSubforma)";
+                                $resultRecebimento = $this->conn->query($sqlRecebimento);
+                            }
+                        }
+                    } else {
+                        // Caso não haja subforma, insira sem subforma
+                        $sqlRecebimento = "INSERT INTO empresa_recebimento (empresa_id, forma_recebimento_id, obs_recebimento) 
+                                           VALUES ($empresaId, $idFormaRecebimento, '$observacao_recebimento')";
+                        $resultRecebimento = $this->conn->query($sqlRecebimento);
+                    }
+                }
+            }
+        }
+    } */
+    public function UpdateEmpresaById($empresaId) {
+        echo 'entrou na função de update';
         
+        // Coleta dos dados do POST
+        $nome = $_POST['nome_empresa'] ?? '';
+        $cnpj = $_POST['cnpj_empresa'] ?? '';
+        $particularidades = $_POST['particularidades'] ?? '';
+        $links = $_POST['links_empresa'] ?? '';
+        $endereco = $_POST['endereco_empresa'] ?? '';
+        $observacao_importacao = $this->conn->real_escape_string($_POST['OBS_importacao'] ?? '');
+        $observacao_recebimento = $this->conn->real_escape_string($_POST['OBS_recebimentos'] ?? '');
+        $observacao_link = $this->conn->real_escape_string($_POST['OBS_links'] ?? '');
+        $observacao_particularidades = $this->conn->real_escape_string($_POST['OBS_particularidades'] ?? '');
+        
+        // Atualiza os dados da empresa
+        $sql = "UPDATE empresa 
+                SET links_empresa = '$links', 
+                    nome_empresa = '$nome', 
+                    cnpj_empresa = '$cnpj', 
+                    particularidades_empresa = '$particularidades', 
+                    endereco_empresa = '$endereco', 
+                    obs_link = '$observacao_link', 
+                    obs_particularidades = '$observacao_particularidades' 
+                WHERE ID_empresa = $empresaId";
+    
+        if (!$this->conn->query($sql)) {
+            echo "Erro na atualização: " . $this->conn->error;
+            return;
+        }
+    
+        // Atualiza formas de importação
+        $resultImportacao = true;
+
+        if (isset($_POST['importacao'])) {
+            $formasImportacaoSelecionadas = $_POST['importacao'];
+            $sqlFormasImportacao = "SELECT ID_formaDeImportacao FROM empresa_importacao where ID_daEmpresa = $empresaId";
+            $formasImportacao = $this->conn->query($sqlFormasImportacao);
+            // Limpa as importações existentes
+            $this->conn->query("DELETE FROM empresa_importacao WHERE ID_daEmpresa = $empresaId");
+            $this->conn->query("DELETE FROM formas_importacao where ID_formasImportacao = $formasImportacao");
+            // Insere novas importações
+            foreach ($formasImportacaoSelecionadas as $forma) {
+                $formaEscapada = $this->conn->real_escape_string($forma);
+        
+                // Insere a nova forma de importação
+                $sqlImportacao = "INSERT INTO empresa_importacao (ID_daEmpresa, ID_formaDeImportacao, OBS_importacao) 
+                VALUES ($empresaId, (SELECT ID_formasImportacao FROM formas_importacao WHERE tipo_formasImportacao = '$formaEscapada' LIMIT 1), '$observacao_importacao')";
+      
+                if (!$this->conn->query($sqlImportacao)) {
+                    echo "Erro na inserção de importação: " . $this->conn->error;
+                }
+            }
+        }
+        
+    
+        // Atualiza formas de recebimento
+        if (isset($_POST['recebimento'])) {
+            $formasRecebimentoSelecionadas = $_POST['recebimento'];
+    
+            // Limpa as formas de recebimento existentes
+            $this->conn->query("DELETE FROM empresa_recebimento WHERE empresa_id = $empresaId");
+    
+            // Insere novas formas de recebimento
+            foreach ($formasRecebimentoSelecionadas as $formaRecebimento) {
+                $formaRecebimentoEscapada = $this->conn->real_escape_string($formaRecebimento);
+                $stmtFormaRecebimento = $this->conn->query("SELECT ID_formaRecebimento FROM forma_recebimento WHERE Tipo_formaRecebimento = '$formaRecebimentoEscapada'");
+    
+                if (!$stmtFormaRecebimento) {
+                    echo "Erro na consulta de formas de recebimento: " . $this->conn->error;
+                    continue;
+                }
+    
+                $resultadoRecebimento = $stmtFormaRecebimento->fetch_assoc();
+                if ($resultadoRecebimento) {
+                    $idFormaRecebimento = $resultadoRecebimento['ID_formaRecebimento'];
+    
+                    // Insere subformas se houver
+                    if (isset($_POST['subformas_recebimento'][$formaRecebimento])) {
+                        $subformasRecebimentoSelecionadas = $_POST['subformas_recebimento'][$formaRecebimento];
+    
+                        foreach ($subformasRecebimentoSelecionadas as $subforma) {
+                            $subformaEscapada = $this->conn->real_escape_string($subforma);
+                            $stmtSubforma = $this->conn->query("SELECT ID_subForma FROM subforma_recebimento WHERE nome_subforma = '$subformaEscapada'");
+    
+                            if (!$stmtSubforma) {
+                                echo "Erro na consulta de subformas de recebimento: " . $this->conn->error;
+                                continue;
+                            }
+    
+                            $resultadoSubforma = $stmtSubforma->fetch_assoc();
+                            if ($resultadoSubforma) {
+                                $idSubforma = $resultadoSubforma['ID_subForma'];
+    
+                                // Insere a nova forma de recebimento
+                                $sqlRecebimento = "INSERT INTO empresa_recebimento (empresa_id, forma_recebimento_id, obs_recebimento, subforma_recebimento_id) 
+                                                   VALUES ($empresaId, $idFormaRecebimento, '$observacao_recebimento', $idSubforma)";
+                                $this->conn->query($sqlRecebimento);
+                            }
+                        }
+                    } else {
+                        // Insere sem subforma
+                        $sqlRecebimento = "INSERT INTO empresa_recebimento (empresa_id, forma_recebimento_id, obs_recebimento) 
+                                           VALUES ($empresaId, $idFormaRecebimento, '$observacao_recebimento')";
+                        $this->conn->query($sqlRecebimento);
+                    }
+                }
+            }
+        }
     }
     
     public function getEmpresasTableRows() {

@@ -1,6 +1,11 @@
 <?php
 
-$servername = "localhost";
+/* $servername = "ns4.brdrive.net";
+$username = "jpcontab"; 
+$password = "jOg8M4&wO=r5doFruprl"; 
+$dbname = "jp"; 
+ */
+$servername = "127.0.0.1";
 $username = "root";
 $password = "";
 $dbname = "jp"; 
