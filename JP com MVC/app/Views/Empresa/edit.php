@@ -11,6 +11,8 @@ $empresa = $empresaController->exibirDetalhes($empresaId);
 foreach ($empresa as $empresa) {
 }
 
+print_r($_POST);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     // Chama a função para atualizar a empresa
     $empresaController->atualizarEmpresa($empresaId);

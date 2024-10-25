@@ -305,80 +305,149 @@ class empresa{
 
         if (isset($_POST['importacao'])) {
             $formasImportacaoSelecionadas = $_POST['importacao'];
-            $sqlFormasImportacao = "SELECT ID_formaDeImportacao FROM empresa_importacao where ID_daEmpresa = $empresaId";
-            $formasImportacao = $this->conn->query($sqlFormasImportacao);
-            // Limpa as importações existentes
-            $this->conn->query("DELETE FROM empresa_importacao WHERE ID_daEmpresa = $empresaId");
-            $this->conn->query("DELETE FROM formas_importacao where ID_formasImportacao = $formasImportacao");
+            print_r($formasImportacaoSelecionadas);
+            
+            // Limpa as importações existentes para a empresa
+            if (!$this->conn->query("DELETE FROM empresa_importacao WHERE ID_daEmpresa = $empresaId")) {
+                echo "Erro na remoção de importações: " . $this->conn->error;
+                $resultImportacao = false;
+            }
+        
             // Insere novas importações
             foreach ($formasImportacaoSelecionadas as $forma) {
                 $formaEscapada = $this->conn->real_escape_string($forma);
+                $observacaoEscapada = $this->conn->real_escape_string($observacao_importacao);
         
-                // Insere a nova forma de importação
-                $sqlImportacao = "INSERT INTO empresa_importacao (ID_daEmpresa, ID_formaDeImportacao, OBS_importacao) 
-                VALUES ($empresaId, (SELECT ID_formasImportacao FROM formas_importacao WHERE tipo_formasImportacao = '$formaEscapada' LIMIT 1), '$observacao_importacao')";
-      
-                if (!$this->conn->query($sqlImportacao)) {
-                    echo "Erro na inserção de importação: " . $this->conn->error;
+                // Insere a nova forma de importação (caso não exista)
+                $sqlInsertForma = "INSERT IGNORE INTO formas_importacao (tipo_formasImportacao) VALUES ('$formaEscapada')";
+        
+                if (!$this->conn->query($sqlInsertForma)) {
+                    echo "Erro ao inserir forma de importação: " . $this->conn->error;
+                    $resultImportacao = false;
+                    continue; // continua para a próxima forma
+                }
+        
+                // Busca a ID da forma de importação
+                $sqlCheck = "SELECT ID_formasImportacao FROM formas_importacao WHERE tipo_formasImportacao = '$formaEscapada' LIMIT 1";
+                $resultCheck = $this->conn->query($sqlCheck);
+        
+                if ($resultCheck && $resultCheck->num_rows > 0) {
+                    $formaId = $resultCheck->fetch_assoc()['ID_formasImportacao'];
+        
+                    // Insere a nova importação
+                    $sqlImportacao = "INSERT INTO empresa_importacao (ID_daEmpresa, ID_formaDeImportacao, obs_importacao) 
+                                      VALUES (?, ?, ?)";
+        
+                    // Preparar a declaração
+                    if ($stmt = $this->conn->prepare($sqlImportacao)) {
+                        $stmt->bind_param("iis", $empresaId, $formaId, $observacaoEscapada);
+                        if (!$stmt->execute()) {
+                            echo "Erro na inserção de importação: " . $stmt->error;
+                            $resultImportacao = false;
+                        }
+                        $stmt->close();
+                    } else {
+                        echo "Erro ao preparar a declaração: " . $this->conn->error;
+                        $resultImportacao = false;
+                    }
+                } else {
+                    echo "Erro ao buscar ID da forma de importação: " . $this->conn->error;
+                    $resultImportacao = false;
                 }
             }
+        
+            if ($resultImportacao) {
+                echo "Importações atualizadas com sucesso.";
+            } else {
+                echo "Houve um erro ao atualizar as importações.";
+            }
+        }
+                
+        // Opcional: lidar com o resultado da operação
+        if ($resultImportacao) {
+            echo "Importações atualizadas com sucesso.";
+        } else {
+            echo "Houve um erro ao atualizar as importações.";
         }
         
     
-        // Atualiza formas de recebimento
-        if (isset($_POST['recebimento'])) {
-            $formasRecebimentoSelecionadas = $_POST['recebimento'];
-    
-            // Limpa as formas de recebimento existentes
-            $this->conn->query("DELETE FROM empresa_recebimento WHERE empresa_id = $empresaId");
-    
-            // Insere novas formas de recebimento
-            foreach ($formasRecebimentoSelecionadas as $formaRecebimento) {
-                $formaRecebimentoEscapada = $this->conn->real_escape_string($formaRecebimento);
-                $stmtFormaRecebimento = $this->conn->query("SELECT ID_formaRecebimento FROM forma_recebimento WHERE Tipo_formaRecebimento = '$formaRecebimentoEscapada'");
-    
-                if (!$stmtFormaRecebimento) {
-                    echo "Erro na consulta de formas de recebimento: " . $this->conn->error;
-                    continue;
-                }
-    
-                $resultadoRecebimento = $stmtFormaRecebimento->fetch_assoc();
-                if ($resultadoRecebimento) {
-                    $idFormaRecebimento = $resultadoRecebimento['ID_formaRecebimento'];
-    
-                    // Insere subformas se houver
-                    if (isset($_POST['subformas_recebimento'][$formaRecebimento])) {
-                        $subformasRecebimentoSelecionadas = $_POST['subformas_recebimento'][$formaRecebimento];
-    
-                        foreach ($subformasRecebimentoSelecionadas as $subforma) {
-                            $subformaEscapada = $this->conn->real_escape_string($subforma);
-                            $stmtSubforma = $this->conn->query("SELECT ID_subForma FROM subforma_recebimento WHERE nome_subforma = '$subformaEscapada'");
-    
-                            if (!$stmtSubforma) {
-                                echo "Erro na consulta de subformas de recebimento: " . $this->conn->error;
-                                continue;
-                            }
-    
-                            $resultadoSubforma = $stmtSubforma->fetch_assoc();
-                            if ($resultadoSubforma) {
-                                $idSubforma = $resultadoSubforma['ID_subForma'];
-    
-                                // Insere a nova forma de recebimento
-                                $sqlRecebimento = "INSERT INTO empresa_recebimento (empresa_id, forma_recebimento_id, obs_recebimento, subforma_recebimento_id) 
-                                                   VALUES ($empresaId, $idFormaRecebimento, '$observacao_recebimento', $idSubforma)";
-                                $this->conn->query($sqlRecebimento);
-                            }
-                        }
-                    } else {
-                        // Insere sem subforma
-                        $sqlRecebimento = "INSERT INTO empresa_recebimento (empresa_id, forma_recebimento_id, obs_recebimento) 
-                                           VALUES ($empresaId, $idFormaRecebimento, '$observacao_recebimento')";
-                        $this->conn->query($sqlRecebimento);
-                    }
-                }
+// Atualiza formas de recebimento
+if (isset($_POST['forma_recebimento'])) {
+    $formaRecebimento = $_POST['forma_recebimento'];
+    $subFormasRecebimento = $_POST['subformas_recebimento'] ?? []; // Garante que seja um array
+    $obsRecebimento = $_POST['OBS_recebimentos'];
+    echo $formaRecebimento;
+    foreach($subFormasRecebimento as $f){
+        echo $f;
+        echo '<br>';
+    }
+    echo $obsRecebimento;
+        // Consulta o forma_recebimento_id na tabela empresa_recebimento
+        $stmtConsulta = $this->conn->prepare("SELECT forma_recebimento_id FROM empresa_recebimento WHERE empresa_id = ?");
+        $stmtConsulta->bind_param("i", $empresaId);
+        $stmtConsulta->execute();
+        $stmtConsulta->bind_result($formaRecebimentoId);
+        $stmtConsulta->fetch();
+        $stmtConsulta->close();
+
+        // Verifica se o forma_recebimento_id foi encontrado
+        if ($formaRecebimentoId) {
+            // Atualiza o Tipo_formaRecebimento na tabela forma_recebimento
+            $stmtUpdate = $this->conn->prepare("UPDATE forma_recebimento SET Tipo_formaRecebimento = ? WHERE ID_formaRecebimento = ?");
+            $stmtUpdate->bind_param("si", $formaRecebimento, $formaRecebimentoId);
+
+            if ($stmtUpdate->execute()) {
+                // Mensagem de sucesso
+                echo "Forma de recebimento atualizada com sucesso!";
+            } else {
+                // Mensagem de erro
+                echo "Erro ao atualizar a forma de recebimento: " . $stmtUpdate->error;
             }
         }
     }
+
+    //atualiza subformas
+    $stmtConsulta = $this->conn->prepare("SELECT subforma_recebimento_id FROM empresa_recebimento WHERE empresa_id = ?");
+    $stmtConsulta->bind_param("i", $empresaId);
+    $stmtConsulta->execute();
+    $result = $stmtConsulta->get_result();
+    
+    // Armazena os IDs retornados
+    $subformasIds = [];
+    while ($row = $result->fetch_assoc()) {
+        $subformasIds[] = $row['subforma_recebimento_id'];
+    }
+    $stmtConsulta->close();
+
+    // Atualiza ou insere as subformas de recebimento
+    foreach ($subformasIds as $subformaId) {
+        // Verifica se a subforma está no array recebido
+        if (in_array($subformaId, $subFormasRecebimento)) {
+            // Se a subforma já está na lista, atualiza
+            $stmtUpdate = $this->conn->prepare("UPDATE subforma_recebimento SET nome_subforma = ? WHERE ID_subforma = ?");
+            $stmtUpdate->bind_param("si", $subformaId, $subformaId);
+            $stmtUpdate->execute();
+            $stmtUpdate->close();
+        } else {
+            // Se a subforma não está na lista, você pode optar por deletá-la ou não
+            // Exemplo de exclusão (descomente se necessário)
+            // $stmtDelete = $this->conn->prepare("DELETE FROM empresa_recebimento WHERE subforma_recebimento_id = ? AND empresa_id = ?");
+            // $stmtDelete->bind_param("ii", $subformaId, $empresaId);
+            // $stmtDelete->execute();
+            // $stmtDelete->close();
+        }
+    }
+
+    // Mensagem de sucesso
+    echo "Subformas de recebimento atualizadas com sucesso!";
+}
+
+
+    
+
+
+    
+
     
     public function getEmpresasTableRows() {
         $sql = "SELECT * FROM empresa";

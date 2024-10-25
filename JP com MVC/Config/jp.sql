@@ -1,15 +1,4 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Host: 127.0.0.1
--- Tempo de geração: 14/10/2024 às 14:31
--- Versão do servidor: 10.4.32-MariaDB
--- Versão do PHP: 8.0.30
-
-create database jp;
-
-use jp;
+use jpcontab_jp;
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
