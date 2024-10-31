@@ -43,9 +43,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="list.php">Listar Empresas</a>
                 </li>
-                <li class="nav-item">
+<!--                 <li class="nav-item">
                     <a class="nav-link" href="pagina_usuario.php">Página de Usuário</a>
-                </li>
+                </li> -->
             </ul>
         </div>
     </nav>

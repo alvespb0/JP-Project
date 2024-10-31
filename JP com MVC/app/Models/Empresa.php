@@ -417,38 +417,69 @@ if (isset($_POST['forma_recebimento'])) {
     while ($row = $result->fetch_assoc()) {
         $subformasIds[] = $row['subforma_recebimento_id'];
     }
+    foreach ($subformasIds as $id){
+        echo $id;
+    }
     $stmtConsulta->close();
 
     // Atualiza ou insere as subformas de recebimento
     foreach ($subformasIds as $subformaId) {
         // Verifica se a subforma está no array recebido
+
         if (in_array($subformaId, $subFormasRecebimento)) {
             // Se a subforma já está na lista, atualiza
+            echo "entrou no if";
+            $nomeSubforma = 'Novo Nome'; // Substitua 'Novo Nome' pelo nome correto que você deseja
             $stmtUpdate = $this->conn->prepare("UPDATE subforma_recebimento SET nome_subforma = ? WHERE ID_subforma = ?");
-            $stmtUpdate->bind_param("si", $subformaId, $subformaId);
+            $stmtUpdate->bind_param("si", $nomeSubforma, $subformaId);
             $stmtUpdate->execute();
             $stmtUpdate->close();
-        } else {
-            // Se a subforma não está na lista, você pode optar por deletá-la ou não
-            // Exemplo de exclusão (descomente se necessário)
-            // $stmtDelete = $this->conn->prepare("DELETE FROM empresa_recebimento WHERE subforma_recebimento_id = ? AND empresa_id = ?");
-            // $stmtDelete->bind_param("ii", $subformaId, $empresaId);
-            // $stmtDelete->execute();
-            // $stmtDelete->close();
+
         }
+
+        } 
     }
 
-    // Mensagem de sucesso
-    echo "Subformas de recebimento atualizadas com sucesso!";
-}
+    public function deleteEmpresaById($id){
 
+            // Iniciar a transação
+            $this->conn->begin_transaction();
+        
+            try {
+                // Deletar registros nas tabelas relacionadas
+                $stmt1 = $this->conn->prepare("DELETE FROM empresa_importacao WHERE ID_daEmpresa = ?");
+                $stmt1->bind_param('i', $id);
+                $stmt1->execute();
+        
+                $stmt2 = $this->conn->prepare("DELETE FROM empresa_recebimento WHERE empresa_id = ?");
+                $stmt2->bind_param('i', $id);
+                $stmt2->execute();
+        
+                // Deletar formas de recebimento relacionadas à empresa
+                $stmt3 = $this->conn->prepare("DELETE FROM forma_recebimento WHERE ID_formaRecebimento IN (SELECT forma_recebimento_id FROM empresa_recebimento WHERE empresa_id = ?)");
+                $stmt3->bind_param('i', $id);
+                $stmt3->execute();
+        
+                // Deletar subformas de recebimento relacionadas
+                $stmt4 = $this->conn->prepare("DELETE FROM subforma_recebimento WHERE ID_formaDeRecebimento IN (SELECT ID_formaRecebimento FROM forma_recebimento WHERE ID_formaRecebimento IN (SELECT forma_recebimento_id FROM empresa_recebimento WHERE empresa_id = ?))");
+                $stmt4->bind_param('i', $id);
+                $stmt4->execute();
+        
+                // Finalmente, deletar o registro da tabela empresa
+                $stmt5 = $this->conn->prepare("DELETE FROM empresa WHERE ID_empresa = ?");
+                $stmt5->bind_param('i', $id);
+                $stmt5->execute();
+        
+                // Commit da transação
+                $this->conn->commit();
+            } catch (Exception $e) {
+                // Em caso de erro, fazer rollback da transação
+                $this->conn->rollback();
+                // Logar ou tratar o erro como necessário
+                echo "Erro ao excluir a empresa: " . $e->getMessage();
+            }
+                }
 
-    
-
-
-    
-
-    
     public function getEmpresasTableRows() {
         $sql = "SELECT * FROM empresa";
         $result = $this->conn->query($sql);

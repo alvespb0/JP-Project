@@ -49,6 +49,9 @@ class EmpresaController{
 
         return $html; 
     }
+    public function excluirEmpresa($id){
+        $this->empresaModel->deleteEmpresaById($id);
+    }
 
     public function searchEmpresa($search = '') {
         $result = $this->empresaModel->getEmpresaBySearch($search);

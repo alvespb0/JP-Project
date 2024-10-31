@@ -6,6 +6,12 @@ use App\Controllers\EmpresaController;
 
 $empresaController = new EmpresaController();
 $searchTerm = isset($_POST['search']) ? $_POST['search'] : '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
+    $id = $_POST['delete_id'];
+    $empresaController->excluirEmpresa($id);
+}
+
 ?>
 
 <!DOCTYPE html>
